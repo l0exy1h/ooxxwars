@@ -4,7 +4,7 @@ An advanced TicTacToe game based on Haskell and the Brick library.
 
 ## Who we are
 
-| Name         |        |           |
+| Name         | Email  | PID       |
 | ------------ | ------ | --------- |
 | Zhiyuan Qi   | zhqi   | A59002572 |
 | Ruochen Wang | ruw028 | A59011298 |
@@ -25,14 +25,14 @@ In our game, two players take turns to mark space in any grid in any sub-game wi
 
 ### Model
 
-We’re going to structure the codebase based on the MVC framework. First of all, the essential data model of this game is a 3-d array [[[ Entry ]]] called boards, where 
+We’re going to structure the codebase based on the MVC framework. First of all, the essential data model of this game is a 3-d array `[[[ Entry ]]]` called *boards*, where 
 
-- Entry = O | X | Empty
-- Boards[i] is a 2D square board for the i-th subgame. 
+- `Entry = O | X | Empty`
+- `Boards[i]` is a 2D square board for the i-th subgame. 
 
 ### View
 
-One section of the code is going to read this 3-d array and turn it into a TUI using the Brick Library. 
+One section of the code is going to read this 3-d array and turn it into a TUI using the `Brick` Library. 
 
 If time permits, we will also implement fancy ASCII art animations using Brick, such as when an entry is marked, when a subgame is finished, and when the game finishes.
 
