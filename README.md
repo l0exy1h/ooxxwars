@@ -47,6 +47,7 @@ If time permits, we would also like to explore the option of mouse input.
 If everything above proceeds smoothly ahead of time, there are several other things we wish to try
 
 - AI opponent (minimax, limit depth)
+- Sound
 
 ## Plan of execution
 
