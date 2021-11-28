@@ -31,8 +31,17 @@ mkRow :: PlayState -> Int -> Widget n
 mkRow s row = hTile [ mkBoard s row i | i <- [1 .. dim] ]
 
 mkBoard :: PlayState -> Int -> Int -> Widget n
-mkBoard s sr sc = withBorderStyle unicode origBoard
-  where origBoard = vTile [ hTile [ mkCell s sr sc row i | i <- [1 .. dim] ] | row <- [1 .. dim] ]
+mkBoard s sr sc = colored bordered
+  where
+    (colored, vstack, hstack) = case getBoardResult subBoard of
+      Win X -> (blued, vBox, hBox)
+      Win O -> (reded, vBox, hBox)
+      _     -> (id, vTile, hTile)
+    origBoard = vstack [ hstack [ mkCell s sr sc row i | i <- [1 .. dim] ] | row <- [1 .. dim] ]
+    bordered  = withBorderStyle unicode origBoard
+    blued     = withAttr (attrName "blueBg")
+    reded     = withAttr (attrName "redBg")
+    subBoard  = fromJust $ M.lookup (Pos sr sc) (psSuperBoard s)
 
 mkCell :: PlayState -> Int -> Int -> Int -> Int -> Widget n
 mkCell s sr sc r c = raw where raw = mkCell' s sr sc r c

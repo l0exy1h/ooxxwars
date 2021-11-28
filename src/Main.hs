@@ -1,7 +1,9 @@
 module Main where
 
 import Brick
+import qualified Brick.Util as BU
 import Graphics.Vty.Attributes
+import Graphics.Vty
 import qualified Graphics.Vty as V
 import Brick.BChan (newBChan, writeBChan)
 import Control.Monad (forever)
@@ -33,8 +35,12 @@ app = App
   , appChooseCursor = const . const Nothing
   , appHandleEvent  = control 
   , appStartEvent   = return
-  , appAttrMap      = const (attrMap defAttr [])
+  , appAttrMap      = const attrmap -- const (attrMap defAttr [])
   }
+    where
+      blueBg = attrName "blueBg"
+      redBg = attrName "redBg"
+      attrmap = attrMap defAttr [(blueBg, BU.bg blue), (redBg, BU.bg red)]
 
 getRounds :: IO (Maybe Int)
 getRounds = do
