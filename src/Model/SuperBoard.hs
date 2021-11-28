@@ -34,9 +34,9 @@ cols x = [[Pos r c | r <- [1..x]] | c <- [1..x]]
 diags x = [[Pos i i | i <- [1..x]], [Pos i (x+1-i) | i <- [1..x]]]
 
 result :: SuperBoard -> Result SuperBoard
-result sb   | isDraw sb = Draw
-            | wins sb X = Win X
+result sb   | wins sb X = Win X
             | wins sb O = Win O
+            | isDraw sb = Draw
             | otherwise = Cont sb
 
 isDraw :: SuperBoard -> Bool

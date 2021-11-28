@@ -79,9 +79,9 @@ put board xo pos = case M.lookup pos board of
 
 result :: Board -> Result Board
 result b 
-  | isFull b  = Draw
   | wins b X  = Win  X 
   | wins b O  = Win  O
+  | isFull b  = Draw
   | otherwise = Cont b
 
 getBoardResult :: Board -> Result Board
