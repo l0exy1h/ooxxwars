@@ -1,4 +1,17 @@
-module Model.SuperBoard where
+module Model.SuperBoard 
+  ( -- * Types
+    SuperBoard
+  , superBoardInit
+  , superPositions
+  , superPut
+  , emptySuperPositions
+    -- * Moves
+  , superUp
+  , superDown
+  , superLeft
+  , superRight
+  )
+where
 
 import Model.Board
 import qualified Data.Map as M 
@@ -17,8 +30,8 @@ isqrt x = floor . sqrt $ (fromIntegral x :: Float)
 getSuperBoardDim :: SuperBoard -> Int
 getSuperBoardDim sb = isqrt (M.size sb)
 
-put :: SuperBoard -> XO -> Pos -> Pos -> Result SuperBoard
-put sb xo supPos subPos = case M.lookup supPos sb of
+superPut :: SuperBoard -> XO -> (Pos, Pos) -> Result SuperBoard
+superPut sb xo (supPos, subPos) = case M.lookup supPos sb of
     Nothing   -> Retry
     Just sub  -> case (Model.Board.put sub xo subPos) of 
         Retry   -> Retry
@@ -55,43 +68,50 @@ checkWinOfBoard sb xo ps = case M.lookup ps sb of
     Just v  -> if getBoardResult v == Win xo then True else False
 
 
-superUp :: Int -> (Pos, Pos) -> (Pos, Pos) 
-superUp _ posPair = case pRow (snd posPair) of
+superUp :: (Pos, Pos) -> (Pos, Pos) 
+superUp posPair = case pRow (snd posPair) of
     0   -> (case pRow (fst posPair) of
             0   ->  posPair
             x   ->  ((fst posPair){pRow = x - 1}, (snd posPair){pRow = 3}) 
         )
     _   -> (fst posPair, Model.Board.up (snd posPair))
 
-superDown :: Int -> (Pos, Pos) -> (Pos, Pos) 
-superDown sbDim posPair = case pRow (snd posPair) of
-    3   -> if pRow (fst posPair) == sbDim 
+superDown :: (Pos, Pos) -> (Pos, Pos) 
+superDown posPair = case pRow (snd posPair) of
+    3   -> if pRow (fst posPair) == 3 
         then posPair 
         else((fst posPair){pRow = (pRow (fst posPair)) + 1}, (snd posPair){pRow = 1}) 
     _     -> (fst posPair, Model.Board.down (snd posPair))
 
 
 
-superLeft :: Int -> (Pos, Pos) -> (Pos, Pos) 
-superLeft _ posPair = case pCol (snd posPair) of
+superLeft :: (Pos, Pos) -> (Pos, Pos) 
+superLeft posPair = case pCol (snd posPair) of
     0   -> (case pCol (fst posPair) of
             0   ->  posPair
             x   ->  ((fst posPair){pCol = x - 1}, (snd posPair){pCol = x - 1}) 
           )
     _     -> (fst posPair, Model.Board.left (snd posPair))
 
-superRight :: Int -> (Pos, Pos) -> (Pos, Pos) 
-superRight sbDim posPair = case pCol (snd posPair) of
-    3   -> if (pCol (fst posPair)) == sbDim 
+superRight :: (Pos, Pos) -> (Pos, Pos) 
+superRight posPair = case pCol (snd posPair) of
+    3   -> if (pCol (fst posPair)) == 3 
         then posPair 
         else ((fst posPair){pCol = (pCol (fst posPair)) + 1}, (snd posPair){pCol = 1}) 
            
     _     -> (fst posPair, Model.Board.right (snd posPair))
 
---- >>> fst (superRight 3 (Pos 2 1, Pos 1 3))
+
+emptySuperPositions :: SuperBoard -> [(Pos, Pos)]
+emptySuperPositions sb  = [ (xx, zz)| (xx, yy) <- (getAllBoard sb), zz <- emptyPositions yy]
+
+getAllBoard:: SuperBoard -> [(Pos, Board)]
+getAllBoard sb = [(xx, yy) | (xx, yy) <- M.assocs sb]
+
+--- >>> fst (superRight (Pos 2 1, Pos 1 3))
 --- Pos {pRow = 2, pCol = 2}
 ---
 
---- >>> fst (superDown 3 (Pos 1 1, Pos 3 3))
+--- >>> fst (superDown (Pos 1 1, Pos 3 3))
 --- Pos {pRow = 2, pCol = 1}
 ---
