@@ -54,9 +54,9 @@ mkXO (Just X) = blockX
 mkXO (Just O) = blockO
 
 blockB, blockX, blockO :: Widget n
-blockB = vBox (replicate 5 (str "     "))
-blockX = vBox [str "X   X", str " X X ", str "  X  ", str " X X ", str "X   X"]
-blockO = vBox [str "OOOOO", str "O   O", str "O   O", str "O   O", str "OOOOO"]
+blockB = vBox (replicate 3 (str "   "))
+blockX = vBox [str "\\ /", str " ╳ ", str "/ \\"]
+blockO = vBox [str "/‾\\", str "⎸ ⎹", str "\\_/"]
 
 vTile :: [Widget n] -> Widget n
 vTile (b : bs) = vBox (b : [ hBorder <=> b | b <- bs ])
