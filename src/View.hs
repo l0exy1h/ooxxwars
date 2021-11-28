@@ -24,8 +24,13 @@ view' s = withBorderStyle (borderStyleFromChar '█') $ borderWithLabel (str (he
   [ mkRow s row | row <- [1 .. dim] ]
 
 header :: PlayState -> String
-header s = printf "Tic-Tac-Toe Turn = %s, row = %d, col = %d" (show (psTurn s)) (pRow p) (pCol p)
-  where p = psPos s
+header s = printf "Tic-Tac-Toe Turn = %s, sr = %d, sc = %d, row = %d, col = %d"
+                  (show (psTurn s))
+                  sr
+                  sc
+                  r
+                  c
+  where (Pos sr sc, Pos r c) = psSuperPos s
 
 mkRow :: PlayState -> Int -> Widget n
 mkRow s row = hTile [ mkBoard s row i | i <- [1 .. dim] ]
@@ -44,7 +49,8 @@ mkBoard s sr sc = colored bordered
     subBoard  = fromJust $ M.lookup (Pos sr sc) (psSuperBoard s)
 
 mkCell :: PlayState -> Int -> Int -> Int -> Int -> Widget n
-mkCell s sr sc r c = raw where raw = mkCell' s sr sc r c
+mkCell s sr sc r c = if (Pos sr sc, Pos r c) == psSuperPos s then withCursor raw else raw
+  where raw = mkCell' s sr sc r c
 
 withCursor :: Widget n -> Widget n
 withCursor = modifyDefAttr (`withStyle` reverseVideo)
