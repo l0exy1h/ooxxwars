@@ -3,14 +3,13 @@ module View
   ) where
 
 import           Brick
-import           Brick.Widgets.Border           ( borderWithLabel
-                                                , hBorder
-                                                , vBorder
-                                                )
-import           Brick.Widgets.Border.Style     ( unicode )
+import           Brick.Widgets.Border
+import           Brick.Widgets.Border.Style
 import           Brick.Widgets.Center           ( center )
 import           Text.Printf                    ( printf )
 
+import qualified Data.Map                      as M
+import           Data.Maybe
 import           Graphics.Vty            hiding ( dim )
 import           Model
 import           Model.Board
@@ -21,7 +20,7 @@ view :: PlayState -> [Widget String]
 view s = [view' s]
 
 view' :: PlayState -> Widget String
-view' s = withBorderStyle unicode $ borderWithLabel (str (header s)) $ vTile
+view' s = withBorderStyle (borderStyleFromChar '█') $ borderWithLabel (str (header s)) $ vTile
   [ mkRow s row | row <- [1 .. dim] ]
 
 header :: PlayState -> String
@@ -29,19 +28,21 @@ header s = printf "Tic-Tac-Toe Turn = %s, row = %d, col = %d" (show (psTurn s)) 
   where p = psPos s
 
 mkRow :: PlayState -> Int -> Widget n
-mkRow s row = hTile [ mkCell s row i | i <- [1 .. dim] ]
+mkRow s row = hTile [ mkBoard s row i | i <- [1 .. dim] ]
 
-mkCell :: PlayState -> Int -> Int -> Widget n
-mkCell s r c | isCurr s r c = withCursor raw
-             | otherwise    = raw
-  where raw = mkCell' s r c
+mkBoard :: PlayState -> Int -> Int -> Widget n
+mkBoard s sr sc = withBorderStyle unicode origBoard
+  where origBoard = vTile [ hTile [ mkCell s sr sc row i | i <- [1 .. dim] ] | row <- [1 .. dim] ]
+
+mkCell :: PlayState -> Int -> Int -> Int -> Int -> Widget n
+mkCell s sr sc r c = raw where raw = mkCell' s sr sc r c
 
 withCursor :: Widget n -> Widget n
 withCursor = modifyDefAttr (`withStyle` reverseVideo)
 
-mkCell' :: PlayState -> Int -> Int -> Widget n
--- mkCell' _ r c = center (str (printf "(%d, %d)" r c))
-mkCell' s r c = center (mkXO xoMb) where xoMb = psBoard s ! Pos r c
+mkCell' :: PlayState -> Int -> Int -> Int -> Int -> Widget n
+mkCell' s sr sc r c = center (mkXO xoMb)
+  where xoMb = fromJust (M.lookup (Pos sr sc) (psSuperBoard s)) ! Pos r c
     -- xoMb 
     --   | r == c    = Just X 
     --   | r > c     = Just O 
