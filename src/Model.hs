@@ -27,6 +27,7 @@ data PlayState = PS
   , psScore       :: Score.Score     -- ^ current score
   , psBoard       :: Board.Board     -- ^ current board
   , psSuperBoard  :: SuperBoard.SuperBoard
+  , psSuperPos    :: (Board.Pos, Board.Pos)
   , psTurn        :: Board.XO        -- ^ whose turn 
   , psPos         :: Board.Pos       -- ^ current cursor
   , psResult      :: Board.Result () -- ^ result      
@@ -39,21 +40,41 @@ init n = PS
   , psScore       = Score.init n
   , psBoard       = Board.init
   , psSuperBoard  = SuperBoard.superBoardInit 3
+  , psSuperPos    = (head (SuperBoard.superPositions 3), head Board.positions)
   , psTurn        = Board.X
   , psPos         = head Board.positions 
   , psResult      = Board.Cont ()
   }
 
-isCurr :: PlayState -> Int -> Int -> Bool
-isCurr s r c = Board.pRow p == r && Board.pCol p == c
-  where 
-    p = psPos s 
+-- isCurr :: PlayState -> Int -> Int -> Bool
+-- isCurr s r c = Board.pRow p == r && Board.pCol p == c
+--   where 
+--     p = psPos s 
 
-next :: PlayState -> Board.Result Board.Board -> Either (Board.Result ()) PlayState
+--- >>> (Model.init 2)
+--- <interactive>:16987:2-15: error:
+---     • No instance for (Show PlayState) arising from a use of ‘print’
+---     • In a stmt of an interactive GHCi command: print it
+---
+
+isCurr :: PlayState -> Int -> Int -> Int -> Int -> Bool
+isCurr s supR supC subR subC = Board.pRow supPos == supR && Board.pCol supPos == supC && Board.pRow subPos == subR && Board.pCol subPos == subC
+  where 
+    subPos = snd (psSuperPos s)
+    supPos = fst (psSuperPos s)
+
+next :: PlayState -> Board.Result SuperBoard.SuperBoard -> Either (Board.Result ()) PlayState
 next s Board.Retry     = Right s
-next s (Board.Cont b') = Right (s { psBoard = b'
+next s (Board.Cont b') = Right (s { psSuperBoard = b'
                                   , psTurn  = Board.flipXO (psTurn s) })
 next s res             = nextBoard s res 
+
+
+-- next :: PlayState -> Board.Result Board.Board -> Either (Board.Result ()) PlayState
+-- next s Board.Retry     = Right s
+-- next s (Board.Cont b') = Right (s { psBoard = b'
+--                                   , psTurn  = Board.flipXO (psTurn s) })
+-- next s res             = nextBoard s res 
 
 nextBoard :: PlayState -> Board.Result a -> Either (Board.Result ()) PlayState
 nextBoard s res = case res' of
@@ -65,6 +86,20 @@ nextBoard s res = case res' of
     res' = Score.winner sc'
     s'   = s { psScore = sc'                   -- update the score
              , psBoard = mempty                -- clear the board
+             , psSuperBoard = SuperBoard.superBoardInit 3
              , psTurn  = Score.startPlayer sc' -- toggle start player
              } 
+
+-- nextBoard :: PlayState -> Board.Result a -> Either (Board.Result ()) PlayState
+-- nextBoard s res = case res' of
+--                     Board.Win _ -> Left res' 
+--                     Board.Draw  -> Left res'
+--                     _           -> Right s' 
+--   where 
+--     sc'  = Score.add (psScore s) (Board.boardWinner res) 
+--     res' = Score.winner sc'
+--     s'   = s { psScore = sc'                   -- update the score
+--              , psBoard = mempty                -- clear the board
+--              , psTurn  = Score.startPlayer sc' -- toggle start player
+--              } 
 
