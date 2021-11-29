@@ -70,8 +70,8 @@ checkWinOfBoard sb xo ps = case M.lookup ps sb of
 
 superUp :: (Pos, Pos) -> (Pos, Pos) 
 superUp posPair = case pRow (snd posPair) of
-    0   -> (case pRow (fst posPair) of
-            0   ->  posPair
+    1   -> (case pRow (fst posPair) of
+            1   ->  posPair
             x   ->  ((fst posPair){pRow = x - 1}, (snd posPair){pRow = 3}) 
         )
     _   -> (fst posPair, Model.Board.up (snd posPair))
@@ -87,9 +87,9 @@ superDown posPair = case pRow (snd posPair) of
 
 superLeft :: (Pos, Pos) -> (Pos, Pos) 
 superLeft posPair = case pCol (snd posPair) of
-    0   -> (case pCol (fst posPair) of
-            0   ->  posPair
-            x   ->  ((fst posPair){pCol = x - 1}, (snd posPair){pCol = x - 1}) 
+    1   -> (case pCol (fst posPair) of
+            1   ->  posPair
+            x   ->  ((fst posPair){pCol = x - 1}, (snd posPair){pCol = 3}) 
           )
     _     -> (fst posPair, Model.Board.left (snd posPair))
 
@@ -108,8 +108,8 @@ emptySuperPositions sb  = [ (xx, zz)| (xx, yy) <- (getAllBoard sb), zz <- emptyP
 getAllBoard:: SuperBoard -> [(Pos, Board)]
 getAllBoard sb = [(xx, yy) | (xx, yy) <- M.assocs sb]
 
---- >>> fst (superRight (Pos 2 1, Pos 1 3))
---- Pos {pRow = 2, pCol = 2}
+--- >>> (superUp (Pos 2 1, Pos 1 1))
+--- (Pos {pRow = 1, pCol = 1},Pos {pRow = 3, pCol = 1})
 ---
 
 --- >>> fst (superDown (Pos 1 1, Pos 3 3))
