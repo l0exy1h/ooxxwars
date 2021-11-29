@@ -61,7 +61,7 @@ Two of us are going to handle the view component, and the other two will write t
 
 ## Update
 
-What is the architecture of your application (the key components)?
+### What is the architecture of your application (the key components)?
 
 We built upon the starter code, and currently we have the following components in `src`:
 - `Model.hs`: defines the data types used in the game
@@ -69,24 +69,24 @@ We built upon the starter code, and currently we have the following components i
 - `Board.hs`: defines the subboard, which includes movements and the winning conditions of subboard
 - `Player.hs`: adds strategy for superboard
 - `View.hs`: displays the superboard with ASCII arts and color 
-- `Control.hs`: support superboard and 'hjkl' for movement
+- `Control.hs`: supports superboard and 'hjkl' for movement
 
-Also, we are going to implement following components:
+Also, we are going to implement the following components:
 - `Audio.hs`: play sounds upon movement, placement, win/loss. We expect to use the `Sound.ALUT` library.
 - update `Player.hs` to support the second player
 - update `Player.hs` to support a minimax agent
 - create a welcome page where user can choose between playing with an agent or a friend
 - `Tests.hs`: add tests to movement and winning conditions using the QuickCheck library.
 
-What challenges (if any) did you have so far and how did you solve them?
+### What challenges (if any) did you have so far and how did you solve them?
 
 - We encountered some difficulties in moving in superboard. In order to solve these issues, the teammates who developed the `View.hs` made the game display debugging information directly on the gameboard so that we could quickly pinpoint the issue. We finally fixed the bugs after collaboration.
 - We found us unfamiliar with haskell documentation website. It took some time to get used to it.
 
-Do you expect to meet your goals until the deadline?
+### Do you expect to meet your goals until the deadline?
 
 Currently we are optimistic about the project because we have finished the core components and the game is already working. We expect to meet our goals until the deadline.
 
-If not, how will you modify your goals?
+### If not, how will you modify your goals?
 
 N/A.
