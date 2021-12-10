@@ -33,18 +33,38 @@ main = runTests
 -- >>> main
 -- Tests
 --   SuperBoard-Move
---     up-1: OK
---     up-2: OK
+--     up-1:    OK
+--     up-2:    OK
+--     up-3:    OK
+--     down-1:  OK
+--     down-2:  OK
+--     down-3:  OK
+--     left-1:  OK
+--     left-2:  OK
+--     left-3:  OK
+--     right-1: OK
+--     right-2: OK
+--     right-3: OK
 -- <BLANKLINE>
--- All 2 tests passed (0.00s)
--- OVERALL SCORE = 2 / 2
+-- All 12 tests passed (0.00s)
+-- OVERALL SCORE = 12 / 12
 -- *** Exception: ExitSuccess
 --
 
 probMove ::  Score -> TestTree
 probMove sc = testGroup "SuperBoard-Move" [
   scoreTest ((\_ -> superUp (Pos 1 1, Pos 1 1)), (), (Pos 1 1, Pos 1 1), 1, "up-1"),
-  scoreTest ((\_ -> superUp (Pos 2 1, Pos 1 1)), (), (Pos 1 1, Pos 3 1), 1, "up-2")
+  scoreTest ((\_ -> superUp (Pos 2 1, Pos 1 1)), (), (Pos 1 1, Pos 3 1), 1, "up-2"),
+  scoreTest ((\_ -> superUp (Pos 2 1, Pos 2 1)), (), (Pos 2 1, Pos 1 1), 1, "up-3"),
+  scoreTest ((\_ -> superDown (Pos 3 1, Pos 3 1)), (), (Pos 3 1, Pos 3 1), 1, "down-1"),
+  scoreTest ((\_ -> superDown (Pos 1 1, Pos 3 1)), (), (Pos 2 1, Pos 1 1), 1, "down-2"),
+  scoreTest ((\_ -> superDown (Pos 1 1, Pos 1 1)), (), (Pos 1 1, Pos 2 1), 1, "down-3"),
+  scoreTest ((\_ -> superLeft (Pos 1 1, Pos 1 1)), (), (Pos 1 1, Pos 1 1), 1, "left-1"),
+  scoreTest ((\_ -> superLeft (Pos 1 2, Pos 1 1)), (), (Pos 1 1, Pos 1 3), 1, "left-2"),
+  scoreTest ((\_ -> superLeft (Pos 1 1, Pos 1 2)), (), (Pos 1 1, Pos 1 1), 1, "left-3"),
+  scoreTest ((\_ -> superRight (Pos 1 3, Pos 1 3)), (), (Pos 1 3, Pos 1 3), 1, "right-1"),
+  scoreTest ((\_ -> superRight (Pos 1 1, Pos 1 3)), (), (Pos 1 2, Pos 1 1), 1, "right-2"),
+  scoreTest ((\_ -> superRight (Pos 1 1, Pos 1 1)), (), (Pos 1 1, Pos 1 2), 1, "right-3")
   ]
   where
     scoreTest :: (Show b, Eq b) => (a -> b, a, b, Int, String) -> TestTree
