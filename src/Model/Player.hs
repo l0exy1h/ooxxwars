@@ -47,10 +47,12 @@ ai :: Player
 ai = Player "machine" aiStrategy
 
 aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> Pos -> IO (Pos, Pos)
-aiStrategy _ superBoard turn lastSuper = 
+aiStrategy _ superBoard turn lastSuper = do
+  smart <- randomRIO (0, 9) :: IO Int
+  let base = [Pos a b | a <- [1..3], b <- [1..3]]
+  let supers = if smart < 4 then lastSuper : base else base
   return (try supers)
     where
-      supers = lastSuper : [Pos a b | a<-[1..3], b<-[1..3]] 
       try (superPos:ps) = 
         case minimax turn turn (fromJust (M.lookup superPos superBoard)) of
           (Nothing, _) -> try ps
