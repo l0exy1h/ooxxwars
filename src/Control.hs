@@ -68,7 +68,7 @@ play xo s
   | otherwise = return (Retry, Pos 0 0)
 
 getPosPair :: XO -> PlayState -> IO (Pos, Pos)
-getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLastSuper s)
+getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLastSuper s) (psDifficulty s)
 
 -------------------------------------------------------------------------------
 nextSuperS :: PlayState -> (Result SuperBoard, Pos) -> EventM n (Next State)

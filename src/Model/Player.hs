@@ -20,10 +20,11 @@ type SuperStrategy = (Pos, Pos)     -- ^ current cursor
              -> SuperBoard   -- ^ current board
              -> XO      -- ^ naught or cross
              -> Pos     -- last super position
+             -> Int     -- difficulty
              -> IO (Pos, Pos)  -- ^ next move
 
 human :: Player 
-human = Player "human" (\p _ _ _ -> return p)
+human = Player "human" (\p _ _ _ _ -> return p)
 
 -- rando :: Player 
 -- rando = Player "machine" randomStrategy
@@ -41,11 +42,11 @@ human = Player "human" (\p _ _ _ -> return p)
 ai :: Player 
 ai = Player "machine" aiStrategy
 
-aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> Pos -> IO (Pos, Pos)
-aiStrategy _ superBoard turn lastSuper = do
+aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> Pos -> Int -> IO (Pos, Pos)
+aiStrategy _ superBoard turn lastSuper dif = do
   smart <- randomRIO (0, 9) :: IO Int
   let base = [Pos a b | a <- [1..3], b <- [1..3]]
-  let supers = if smart < 4 then lastSuper : base else base
+  let supers = if smart < dif then lastSuper : base else base
   return (try supers)
     where
       try (superPos:ps) = 

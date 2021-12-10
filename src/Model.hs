@@ -36,6 +36,7 @@ data PlayState = PS
   , psResult      :: Board.Result () -- ^ result      
   , psSounds      :: TrackMap
   , psLastSuper  :: Board.Pos
+  , psDifficulty :: Int
   } 
 
 init :: Int -> PlayState
@@ -51,6 +52,7 @@ init n = PS
   , psResult      = Board.Cont ()
   , psSounds      = loadTracks
   , psLastSuper  = Board.Pos 0 0
+  , psDifficulty = n
   }
 
 -- play a sound synchronously, given name of the track

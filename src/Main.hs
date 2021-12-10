@@ -19,7 +19,7 @@ import Sound.ALUT
 -------------------------------------------------------------------------------
 main :: IO ()
 main = do
-  rounds <- fromMaybe defaultRounds <$> getRounds
+  difficulty <- fromMaybe defaultDifficulty <$> getDifficulty
   chan   <- newBChan 10
   forkIO  $ forever $ do
     writeBChan chan Tick
@@ -32,7 +32,7 @@ main = do
       (Just device) <- openDevice Nothing
       (Just context) <- createContext device []
       currentContext $= Just context
-      res <- customMain initialVty buildVty (Just chan) app (Intro rounds)
+      res <- customMain initialVty buildVty (Just chan) app (Intro difficulty)
       case res of
         Play res -> print (psResult res, psScore res) 
         _ -> return ()
@@ -52,12 +52,12 @@ app = App
       redBg = attrName "redBg"
       attrmap = attrMap defAttr [(blueBg, BU.bg blue), (redBg, BU.bg red)]
 
-getRounds :: IO (Maybe Int)
-getRounds = do
+getDifficulty :: IO (Maybe Int)
+getDifficulty = do
   args <- getArgs
   case args of
     (str:_) -> return (readMaybe str)
     _       -> return Nothing
 
-defaultRounds :: Int
-defaultRounds = 1
+defaultDifficulty :: Int
+defaultDifficulty = 1
