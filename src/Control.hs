@@ -50,16 +50,16 @@ play xo s
     (superRes, subRes) <- superPut (psSuperBoard s) xo <$> getPosPair xo s
 
     case superRes of
-      Retry -> playSoundPlaceFail 
+      Retry -> playTrack "placeFail" s--playSoundPlaceFail 
       _     -> do
-        playSoundPlace
+        playTrack "place" s-- playSoundPlace
         case subRes of 
-          Win X -> playSoundSubWin
-          Win O -> playSoundSubLose
+          Win X -> playTrack "subWin" s --playSoundSubWin
+          Win O -> playTrack "subLose" s --playSoundSubLose
           _     -> pure ()
         case superRes of
-          Win X -> playSoundSuperWin
-          Win O -> playSoundSuperLose
+          Win X -> playTrack "superWin" s --playSoundSuperWin
+          Win O -> playTrack "superLose" s --playSoundSuperLose
           _     -> pure ()
 
     return superRes

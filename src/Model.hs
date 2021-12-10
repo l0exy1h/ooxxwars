@@ -6,6 +6,9 @@ import qualified Model.Board  as Board
 import qualified Model.Score  as Score
 import qualified Model.Player as Player
 import qualified Model.SuperBoard as SuperBoard
+import Sound.ALUT
+import Audio
+import Data.Map as M
 
 -------------------------------------------------------------------------------
 -- | Ticks mark passing of time: a custom event that we constantly stream
@@ -31,6 +34,9 @@ data PlayState = PS
   , psTurn        :: Board.XO        -- ^ whose turn 
   , psPos         :: Board.Pos       -- ^ current cursor
   , psResult      :: Board.Result () -- ^ result      
+  , psSounds      :: TrackMap
+  -- , psLastXsuper  :: Board.Pos
+  -- , psLastOsuper  :: Board.Pos
   } 
 
 init :: Int -> PlayState
@@ -44,7 +50,21 @@ init n = PS
   , psTurn        = Board.X
   , psPos         = head Board.positions 
   , psResult      = Board.Cont ()
+  , psSounds      = loadTracks
+  -- , psLastXsuper  = Board.Pos 0 0
+  -- , psLastOsuper  = Board.Pos 0 0
   }
+
+-- play a sound synchronously, given name of the track
+--   leaked from Audio.hs to here
+--   because we need PlayState
+playTrack :: String -> PlayState -> IO ()
+playTrack name ps = do
+  case M.lookup name (psSounds ps) of
+    Just source -> do
+      src <- source
+      Sound.ALUT.play [src]
+    _ -> pure ()
 
 -- isCurr :: PlayState -> Int -> Int -> Bool
 -- isCurr s r c = Board.pRow p == r && Board.pCol p == c

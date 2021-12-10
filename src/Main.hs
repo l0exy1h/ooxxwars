@@ -3,7 +3,6 @@ module Main where
 import Brick
 import qualified Brick.Util as BU
 import Graphics.Vty.Attributes
-import Graphics.Vty
 import qualified Graphics.Vty as V
 import Brick.BChan (newBChan, writeBChan)
 import Control.Monad (forever)
@@ -15,6 +14,7 @@ import Control
 import System.Environment (getArgs)
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
+import Sound.ALUT
 
 -------------------------------------------------------------------------------
 main :: IO ()
@@ -26,8 +26,16 @@ main = do
     threadDelay 100000 -- decides how fast your game moves
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
-  res <- customMain initialVty buildVty (Just chan) app (Model.init rounds)
-  print (psResult res, psScore res) 
+  -- run sound context
+  withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
+    do
+      (Just device) <- openDevice Nothing
+      (Just context) <- createContext device []
+      currentContext $= Just context
+      res <- customMain initialVty buildVty (Just chan) app (Model.init rounds)
+      print (psResult res, psScore res) 
+      closeDevice device
+      return ()
 
 app :: App PlayState Tick String
 app = App
