@@ -66,7 +66,7 @@ We built upon the starter code. The following components are present in `src/`:
 - `Player.hs`: implements two types of players, minimax AI and human
 - `View.hs`: displays intro, the game itself, and outro
 - `Control.hs`: defines movement  
-- `Audio.hs`: play sounds upon movement, placement, win/loss. This is built upon the `Sound.ALUT` library. The sounds are from `mixkit.co`.
+- `Audio.hs`: play sounds upon placement, win/loss. This is built upon the `Sound.ALUT` library. The sounds are from `mixkit.co`.
 
 Also we have unit tests in `tests/`:
 
