@@ -23,8 +23,8 @@ main = do
   if listToMaybe args == Just "--help"
     then printHelp
     else do
-      difficulty <- fromMaybe defaultDifficulty <$> getDifficulty
-      chan       <- newBChan 10
+      let difficulty = fromMaybe defaultDifficulty $ getDifficulty args
+      chan <- newBChan 10
       forkIO $ forever $ do
         writeBChan chan Tick
         threadDelay 100000 -- decides how fast your game moves
@@ -56,12 +56,11 @@ app = App
       redBg = attrName "redBg"
       attrmap = attrMap defAttr [(blueBg, BU.bg blue), (redBg, BU.bg red)]
 
-getDifficulty :: IO (Maybe Int)
-getDifficulty = do
-  args <- getArgs
+getDifficulty :: [String] -> Maybe Int
+getDifficulty args = do
   case args of
-    (str:_) -> return (readMaybe str)
-    _       -> return Nothing
+    (str:_) -> readMaybe str
+    _       -> Nothing
 
 defaultDifficulty :: Int
 defaultDifficulty = 4
