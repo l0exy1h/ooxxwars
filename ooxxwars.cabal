@@ -11,6 +11,7 @@ executable ooxxwars
   main-is:             Main.hs
   build-depends:       base >=4.9, 
                        random >=1.1 && <1.2,
+                       text,
                        containers,
                        vty, 
                        brick,

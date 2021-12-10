@@ -6,6 +6,7 @@ import           Brick
 import           Brick.Widgets.Border
 import           Brick.Widgets.Border.Style
 import           Brick.Widgets.Center           ( center )
+import qualified Data.Text                     as T
 import           Text.Printf                    ( printf )
 
 import qualified Data.Map                      as M
@@ -15,9 +16,11 @@ import           Model
 import           Model.Board
 
 -------------------------------------------------------------------------------
-view :: PlayState -> [Widget String]
+view :: State -> [Widget String]
 -------------------------------------------------------------------------------
-view s = [view' s]
+view Intro      = undefined
+view (Outro xo) = [txt $ T.pack "X"]
+view (Play  s ) = [view' s]
 
 view' :: PlayState -> Widget String
 view' s = withBorderStyle (borderStyleFromChar '█') $ borderWithLabel (str (header s)) $ vTile

@@ -14,29 +14,30 @@ import Audio
 
 -------------------------------------------------------------------------------
 
-control :: PlayState -> BrickEvent n Tick -> EventM n (Next PlayState)
-control s ev = case ev of 
+control :: State -> BrickEvent n Tick -> EventM n (Next State)
+control (Play s) ev = case ev of
   AppEvent Tick                   -> nextSuperS s =<< liftIO (play O s)
   T.VtyEvent (V.EvKey V.KEnter _) -> nextSuperS s =<< liftIO (play X s)
 
-  T.VtyEvent (V.EvKey V.KUp   _)  -> Brick.continue (move superUp s)   
-  T.VtyEvent (V.EvKey V.KDown _)  -> Brick.continue (move superDown  s)
-  T.VtyEvent (V.EvKey V.KLeft _)  -> Brick.continue (move superLeft  s)
-  T.VtyEvent (V.EvKey V.KRight _) -> Brick.continue (move superRight s)
+  T.VtyEvent (V.EvKey V.KUp   _)  -> Brick.continue $ Play (move superUp s)
+  T.VtyEvent (V.EvKey V.KDown _)  -> Brick.continue $ Play (move superDown  s)
+  T.VtyEvent (V.EvKey V.KLeft _)  -> Brick.continue $ Play (move superLeft  s)
+  T.VtyEvent (V.EvKey V.KRight _) -> Brick.continue $ Play (move superRight s)
 
-  T.VtyEvent (V.EvKey (V.KChar 'k') _) -> Brick.continue (move superUp s)   
-  T.VtyEvent (V.EvKey (V.KChar 'j') _) -> Brick.continue (move superDown  s)
-  T.VtyEvent (V.EvKey (V.KChar 'h') _) -> Brick.continue (move superLeft  s)
-  T.VtyEvent (V.EvKey (V.KChar 'l') _) -> Brick.continue (move superRight s)
+  T.VtyEvent (V.EvKey (V.KChar 'k') _) -> Brick.continue $ Play (move superUp s)
+  T.VtyEvent (V.EvKey (V.KChar 'j') _) -> Brick.continue $ Play (move superDown  s)
+  T.VtyEvent (V.EvKey (V.KChar 'h') _) -> Brick.continue $ Play (move superLeft  s)
+  T.VtyEvent (V.EvKey (V.KChar 'l') _) -> Brick.continue $ Play (move superRight s)
 
-  T.VtyEvent (V.EvKey (V.KChar 'w') _) -> Brick.continue (move superUp s)   
-  T.VtyEvent (V.EvKey (V.KChar 's') _) -> Brick.continue (move superDown  s)
-  T.VtyEvent (V.EvKey (V.KChar 'a') _) -> Brick.continue (move superLeft  s)
-  T.VtyEvent (V.EvKey (V.KChar 'd') _) -> Brick.continue (move superRight s)
+  T.VtyEvent (V.EvKey (V.KChar 'w') _) -> Brick.continue $ Play (move superUp s)
+  T.VtyEvent (V.EvKey (V.KChar 's') _) -> Brick.continue $ Play (move superDown  s)
+  T.VtyEvent (V.EvKey (V.KChar 'a') _) -> Brick.continue $ Play (move superLeft  s)
+  T.VtyEvent (V.EvKey (V.KChar 'd') _) -> Brick.continue $ Play (move superRight s)
 
-  T.VtyEvent (V.EvKey V.KEsc _)   -> Brick.halt s
-  _                               -> Brick.continue s -- Brick.halt s
-
+  T.VtyEvent (V.EvKey V.KEsc _)   -> Brick.halt $ Play s
+  _                               -> Brick.continue $ Play s -- Brick.halt s
+control (Outro xo) _ = Brick.continue (Outro xo)
+control _ _ = undefined
 -------------------------------------------------------------------------------
 move :: ((Pos, Pos) -> (Pos, Pos)) -> PlayState -> PlayState
 -------------------------------------------------------------------------------
@@ -70,11 +71,11 @@ getPosPair :: XO -> PlayState -> IO (Pos, Pos)
 getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo 
 
 -------------------------------------------------------------------------------
-nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next PlayState)
+nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next State)
 -------------------------------------------------------------------------------
 nextSuperS s b = case next s b of
-  Right s' -> continue s'
-  Left res -> halt (s { psResult = res }) 
+  Right s' -> continue $ Play s'
+  Left res -> halt (Play $ s { psResult = res }) 
 
 getSuperStrategy :: XO -> PlayState -> SuperStrategy 
 getSuperStrategy X s = plStrat (psX s)
