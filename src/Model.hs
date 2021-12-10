@@ -43,7 +43,7 @@ init :: Int -> PlayState
 init n = PS 
   { psX           = Player.human
   , psO           = Player.ai
-  , psScore       = Score.init n
+  , psScore       = Score.init 1
   , psBoard       = Board.init
   , psSuperBoard  = SuperBoard.superBoardInit 3
   , psSuperPos    = (head (SuperBoard.superPositions 3), head Board.positions)
