@@ -10,6 +10,7 @@ module Model.SuperBoard
   , superDown
   , superLeft
   , superRight
+  , superResult
   )
 where
 
@@ -51,6 +52,9 @@ result sb   | wins sb X = Win X
             | wins sb O = Win O
             | isDraw sb = Draw
             | otherwise = Cont sb
+
+superResult :: SuperBoard -> Result SuperBoard
+superResult = result
 
 isDraw :: SuperBoard -> Bool
 isDraw sb = and $ boardEnd <$> M.elems sb

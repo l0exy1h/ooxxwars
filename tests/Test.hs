@@ -10,6 +10,7 @@ import Model.Board
 import Control.Exception
 import Test.Tasty
 import Test.Tasty.HUnit
+import qualified Data.Map as M 
 import Prelude hiding (maximum)
 
 type Score = IORef (Int, Int)
@@ -27,7 +28,8 @@ tests x gs = testGroup "Tests" [ g x | g <- gs ]
 
 main :: IO ()
 main = runTests 
-  [ probMove
+  [ probMove,
+    probWin
   ]
 
 -- >>> main
@@ -45,9 +47,11 @@ main = runTests
 --     right-1: OK
 --     right-2: OK
 --     right-3: OK
+--   SuperBoard-Win
+--     Win-X-1: OK
 -- <BLANKLINE>
--- All 12 tests passed (0.00s)
--- OVERALL SCORE = 12 / 12
+-- All 13 tests passed (0.00s)
+-- OVERALL SCORE = 13 / 13
 -- *** Exception: ExitSuccess
 --
 
@@ -69,6 +73,40 @@ probMove sc = testGroup "SuperBoard-Move" [
   where
     scoreTest :: (Show b, Eq b) => (a -> b, a, b, Int, String) -> TestTree
     scoreTest (f, x, r, n, msg) = scoreTest' sc (return . f, x, r, n, msg)
+
+
+inputFlatten :: [String] -> [(Int, Int, Char)]
+inputFlatten x = [(row, col, ch)| (row, str) <- zip [0..8] x, (col, ch) <- zip [0..8] str]
+
+indicesToPosPos :: (Int, Int) -> (Pos, Pos)
+indicesToPosPos (row, col) = (Pos supRow supCol, Pos subRow subCol)
+                            where
+                              supRow = (row `div` 3) + 1
+                              supCol = (col `div` 3) + 1
+                              subRow = (row `mod` 3) + 1
+                              subCol = (col `mod` 3) + 1
+
+
+superInsert :: SuperBoard -> XO -> (Pos, Pos) -> SuperBoard
+superInsert sb xo (supPos, subPos) = case M.lookup supPos sb of
+    Nothing   -> sb
+    Just sub  -> (M.insert supPos (M.insert subPos xo sub) sb)
+
+superBoardConstructor :: [[Char]] -> SuperBoard
+superBoardConstructor ss = foldr f base (inputFlatten ss)
+                          where 
+                            base = superBoardInit 3
+                            f (row, col, ch) sb | ch == 'X' = superInsert sb X (indicesToPosPos (row, col))| ch == 'O' = superInsert sb O (indicesToPosPos (row, col))| otherwise = sb  
+
+probWin ::  Score -> TestTree
+probWin sc = testGroup "SuperBoard-Win" [
+  scoreTest ((\_ -> superResult (superBoardConstructor ["XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX"])), (), Win X, 1, "Win-X-1")
+  ]
+  where
+    scoreTest :: (Show b, Eq b) => (a -> b, a, b, Int, String) -> TestTree
+    scoreTest (f, x, r, n, msg) = scoreTest' sc (return . f, x, r, n, msg)
+
+
 
 --------------------------------------------------------------------------------
 -- | Construct a single test case

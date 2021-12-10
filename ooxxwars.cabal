@@ -35,7 +35,13 @@ test-suite tests
   ghc-options:       -W -threaded
   main-is:           Test.hs
   build-depends:     base >=4.9, process,
+                      containers,
                       QuickCheck,
+                      random >=1.1 && <1.2,
+                      vty, 
                       tasty,
                       tasty-hunit,
-                      tasty-quickcheck
+                      tasty-quickcheck,
+                      ALUT
+  hs-source-dirs:    src
+  other-modules:     Model
