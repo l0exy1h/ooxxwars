@@ -13,31 +13,35 @@ import View
 import Control 
 import System.Environment (getArgs)
 import Text.Read (readMaybe)
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Sound.ALUT
 
 -------------------------------------------------------------------------------
 main :: IO ()
 main = do
-  difficulty <- fromMaybe defaultDifficulty <$> getDifficulty
-  chan   <- newBChan 10
-  forkIO  $ forever $ do
-    writeBChan chan Tick
-    threadDelay 100000 -- decides how fast your game moves
-  let buildVty = V.mkVty V.defaultConfig
-  initialVty <- buildVty
-  -- run sound context
-  withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
-    do
-      (Just device) <- openDevice Nothing
-      (Just context) <- createContext device []
-      currentContext $= Just context
-      res <- customMain initialVty buildVty (Just chan) app (Intro difficulty)
-      case res of
-        Play res -> print (psResult res, psScore res) 
-        _ -> return ()
-      closeDevice device
-      return ()
+  args <- getArgs
+  if listToMaybe args == Just "--help"
+    then printHelp
+    else do
+      difficulty <- fromMaybe defaultDifficulty <$> getDifficulty
+      chan       <- newBChan 10
+      forkIO $ forever $ do
+        writeBChan chan Tick
+        threadDelay 100000 -- decides how fast your game moves
+      let buildVty = V.mkVty V.defaultConfig
+      initialVty <- buildVty
+      -- run sound context
+      withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ -> do
+        (Just device ) <- openDevice Nothing
+        (Just context) <- createContext device []
+        currentContext $= Just context
+        res <- customMain initialVty buildVty (Just chan) app (Intro difficulty)
+        case res of
+          Play res -> print (psResult res, psScore res)
+          _        -> return ()
+        closeDevice device
+        return ()
+
 
 app :: App State Tick String
 app = App
@@ -60,4 +64,7 @@ getDifficulty = do
     _       -> return Nothing
 
 defaultDifficulty :: Int
-defaultDifficulty = 1
+defaultDifficulty = 4
+
+printHelp :: IO ()
+printHelp = putStrLn "\nstack run [difficulty (0..10)]"
