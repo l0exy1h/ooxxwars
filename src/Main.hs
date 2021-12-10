@@ -3,7 +3,6 @@ module Main where
 import Brick
 import qualified Brick.Util as BU
 import Graphics.Vty.Attributes
-import Graphics.Vty
 import qualified Graphics.Vty as V
 import Brick.BChan (newBChan, writeBChan)
 import Control.Monad (forever)
@@ -14,22 +13,37 @@ import View
 import Control 
 import System.Environment (getArgs)
 import Text.Read (readMaybe)
-import Data.Maybe (fromMaybe)
+import Data.Maybe
+import Sound.ALUT
 
 -------------------------------------------------------------------------------
 main :: IO ()
 main = do
-  rounds <- fromMaybe defaultRounds <$> getRounds
-  chan   <- newBChan 10
-  forkIO  $ forever $ do
-    writeBChan chan Tick
-    threadDelay 100000 -- decides how fast your game moves
-  let buildVty = V.mkVty V.defaultConfig
-  initialVty <- buildVty
-  res <- customMain initialVty buildVty (Just chan) app (Model.init rounds)
-  print (psResult res, psScore res) 
+  args <- getArgs
+  if listToMaybe args == Just "--help"
+    then printHelp
+    else do
+      let difficulty = fromMaybe defaultDifficulty $ getDifficulty args
+      chan <- newBChan 10
+      forkIO $ forever $ do
+        writeBChan chan Tick
+        threadDelay 100000 -- decides how fast your game moves
+      let buildVty = V.mkVty V.defaultConfig
+      initialVty <- buildVty
+      -- run sound context
+      withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ -> do
+        (Just device ) <- openDevice Nothing
+        (Just context) <- createContext device []
+        currentContext $= Just context
+        res <- customMain initialVty buildVty (Just chan) app (Intro difficulty)
+        case res of
+          Play res -> print (psResult res, psScore res)
+          _        -> return ()
+        closeDevice device
+        return ()
 
-app :: App PlayState Tick String
+
+app :: App State Tick String
 app = App
   { appDraw         = view 
   , appChooseCursor = const . const Nothing
@@ -42,12 +56,14 @@ app = App
       redBg = attrName "redBg"
       attrmap = attrMap defAttr [(blueBg, BU.bg blue), (redBg, BU.bg red)]
 
-getRounds :: IO (Maybe Int)
-getRounds = do
-  args <- getArgs
+getDifficulty :: [String] -> Maybe Int
+getDifficulty args = do
   case args of
-    (str:_) -> return (readMaybe str)
-    _       -> return Nothing
+    (str:_) -> readMaybe str
+    _       -> Nothing
 
-defaultRounds :: Int
-defaultRounds = 1
+defaultDifficulty :: Int
+defaultDifficulty = 4
+
+printHelp :: IO ()
+printHelp = putStrLn "\nstack run [difficulty (0..10)]"

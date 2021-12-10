@@ -1,28 +1,25 @@
 module Audio where
 
-import Sound.ALUT
+import           Data.Map                      as M
+import           Sound.ALUT
 
--- play a sound synchronously
 -- https://stackoverflow.com/questions/14005592/play-a-wav-file-with-haskell
-playSound2 :: String -> Duration -> IO ()
-playSound2 soundName sleepTime =
-  withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
-  do
-    (Just device) <- openDevice Nothing
-    (Just context) <- createContext device []
-    currentContext $= Just context
-    let soundprefix = "sounds/" 
-    buffer3 <- createBuffer $ File (soundprefix++soundName++".wav")
-    [source] <- genObjectNames 1
-    queueBuffers source [buffer3]
-    play [source]
-    sleep sleepTime
-    closeDevice device
-    return ()
+-- https://github.com/elisehuard/game-in-haskell/blob/master/src/Music.hs
+type TrackMap = M.Map String (IO Source)
 
-playSoundPlace = playSound2 "tap" 0.15
-playSoundPlaceFail = playSound2 "ju" 0.15
-playSoundSubWin = playSound2 "jujuju" 0.6
-playSoundSubLose = playSound2 "small-hit" 0.2
-playSoundSuperWin = playSound2 "complete" 1.0
-playSoundSuperLose = playSound2 "big-hit" 1.0
+loadSound :: FilePath -> IO Source
+loadSound path = do
+  buf    <- createBuffer (File ("sounds/" ++ path ++ ".wav"))
+  source <- genObjectName
+  buffer source $= Just buf
+  return source
+
+loadTracks :: TrackMap
+loadTracks = M.fromList
+  [ ("place"    , loadSound "tap")
+  , ("placeFail", loadSound "ju")
+  , ("subWin"   , loadSound "jujuju")
+  , ("subLose"  , loadSound "small-hit")
+  , ("superWin" , loadSound "complete")
+  , ("superLose", loadSound "big-hit")
+  ]

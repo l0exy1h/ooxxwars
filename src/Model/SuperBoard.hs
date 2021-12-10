@@ -39,7 +39,7 @@ superPut sb xo (supPos, subPos) = case M.lookup supPos sb of
 
 
 winPositions :: Int -> [[Pos]]
-winPositions x = (rows x) ++ (cols x) ++ (diags x) 
+winPositions x = rows x ++ cols x ++ diags x 
 
 rows, cols, diags :: Int -> [[Pos]]
 rows x = [[Pos r c | c <- [1..x]] | r <- [1..x]]
@@ -53,7 +53,12 @@ result sb   | wins sb X = Win X
             | otherwise = Cont sb
 
 isDraw :: SuperBoard -> Bool
-isDraw sb = and[isFull xx | xx <- M.elems sb]
+isDraw sb = and $ boardEnd <$> M.elems sb
+  where
+    boardEnd b = case getBoardResult b of
+                   Win _ -> True
+                   Draw -> True
+                   _ -> False
 
 wins :: SuperBoard -> XO -> Bool
 wins sb xo = or [ winsPoss sb xo ps | ps <- winPositions (getSuperBoardDim sb)]
@@ -107,11 +112,3 @@ emptySuperPositions sb  = [ (xx, zz)| (xx, yy) <- (getAllBoard sb), zz <- emptyP
 
 getAllBoard:: SuperBoard -> [(Pos, Board)]
 getAllBoard sb = [(xx, yy) | (xx, yy) <- M.assocs sb]
-
---- >>> (superUp (Pos 2 1, Pos 1 1))
---- (Pos {pRow = 1, pCol = 1},Pos {pRow = 3, pCol = 1})
----
-
---- >>> fst (superDown (Pos 1 1, Pos 3 3))
---- Pos {pRow = 2, pCol = 1}
----

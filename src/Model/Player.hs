@@ -16,37 +16,38 @@ data Player = Player
   , plStrat :: SuperStrategy
   }
 
-type Strategy = Pos     -- ^ current cursor
-             -> Board   -- ^ current board
-             -> XO      -- ^ naught or cross
-             -> IO Pos  -- ^ next move
-
 type SuperStrategy = (Pos, Pos)     -- ^ current cursor
              -> SuperBoard   -- ^ current board
              -> XO      -- ^ naught or cross
+             -> Pos     -- last super position
+             -> Int     -- difficulty
              -> IO (Pos, Pos)  -- ^ next move
 
 human :: Player 
-human = Player "human" (\p _ _ -> return p)
+human = Player "human" (\p _ _ _ _ -> return p)
 
-rando :: Player 
-rando = Player "machine" randomStrategy
+-- rando :: Player 
+-- rando = Player "machine" randomStrategy
+--
+-- randomStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
+-- randomStrategy _ b _ = selectRandom (emptySuperPositions b) 
+--
+-- selectRandom :: [a] -> IO a
+-- selectRandom xs = do
+--   i <- randomRIO (0, length xs - 1)
+--   return (xs !! i)
 
-randomStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
-randomStrategy _ b _ = selectRandom (emptySuperPositions b) 
-
-selectRandom :: [a] -> IO a
-selectRandom xs = do
-  i <- randomRIO (0, length xs - 1)
-  return (xs !! i)
-
--- finds the first valid subboard and do minimax
+-- run minimax where the last player places an entry
+-- otherwise, finds the first valid subboard and do minimax
 ai :: Player 
 ai = Player "machine" aiStrategy
 
-aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
-aiStrategy _ superBoard turn = 
-  return (try [Pos a b | a<-[1..3], b<-[1..3]])
+aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> Pos -> Int -> IO (Pos, Pos)
+aiStrategy _ superBoard turn lastSuper dif = do
+  smart <- randomRIO (0, 9) :: IO Int
+  let base = [Pos a b | a <- [1..3], b <- [1..3]]
+  let supers = if smart < dif then lastSuper : base else base
+  return (try supers)
     where
       try (superPos:ps) = 
         case minimax turn turn (fromJust (M.lookup superPos superBoard)) of
@@ -54,21 +55,21 @@ aiStrategy _ superBoard turn =
           (Just pos, _)  -> (superPos, pos)
       try [] = (Pos 0 0, Pos 0 0)
 
-testboard1 = M.fromList [(Pos 1 1, O), (Pos 1 3, X), (Pos 2 1, X), (Pos 3 1, X), (Pos 3 2, O), (Pos 3 3, O)]
-testboard2 = M.fromList [(Pos 1 2, X), (Pos 2 3, X), (Pos 3 1, O), (Pos 3 2, O), (Pos 3 3, X)]
-
+getMoves :: M.Map Pos a -> [Pos]
 getMoves board = [Pos a b | a<-[1..3], b<-[1..3], canPut a b]
-  where 
+  where
     canPut a b = isNothing (M.lookup (Pos a b) board)
 
+optimizer :: (Eq a1, Fractional p, Ord p) => a1 -> a1 -> [(a2, p)] -> (a2, p)
 optimizer me turn = L.foldl1' opt --base
-  where 
+  where
     factor = if me == turn then 1.0 else -1.0
     opt (bestmove, bestscore) (move, score) = 
       if (score - bestscore) * factor > 0 
         then (move, score)
         else (bestmove, bestscore)
 
+minimax :: (Fractional b, Ord b) => XO -> XO -> Board -> (Maybe Pos, b)
 minimax me turn board =
   case Model.Board.getBoardResult board of
     Draw       -> (Nothing, 0.0)
@@ -80,4 +81,3 @@ minimax me turn board =
         (bestmove, bestscore) = optimizer me turn movesAndScores
       in
         (Just bestmove, 0.8 * bestscore)
-
