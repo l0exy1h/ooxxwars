@@ -53,7 +53,12 @@ result sb   | wins sb X = Win X
             | otherwise = Cont sb
 
 isDraw :: SuperBoard -> Bool
-isDraw sb = and[isFull xx | xx <- M.elems sb]
+isDraw sb = and $ boardEnd <$> M.elems sb
+  where
+    boardEnd b = case getBoardResult b of
+                   Win _ -> True
+                   Draw -> True
+                   _ -> False
 
 wins :: SuperBoard -> XO -> Bool
 wins sb xo = or [ winsPoss sb xo ps | ps <- winPositions (getSuperBoardDim sb)]
