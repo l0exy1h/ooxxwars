@@ -48,10 +48,13 @@ main = runTests
 --     right-2: OK
 --     right-3: OK
 --   SuperBoard-Win
---     Win-X-1: OK
+--     Win-X:   OK
+--     Win-O:   OK
+--     Draw-1:  OK
+--     Draw-2:  OK
 -- <BLANKLINE>
--- All 13 tests passed (0.00s)
--- OVERALL SCORE = 13 / 13
+-- All 16 tests passed (0.01s)
+-- OVERALL SCORE = 16 / 16
 -- *** Exception: ExitSuccess
 --
 
@@ -100,7 +103,10 @@ superBoardConstructor ss = foldr f base (inputFlatten ss)
 
 probWin ::  Score -> TestTree
 probWin sc = testGroup "SuperBoard-Win" [
-  scoreTest ((\_ -> superResult (superBoardConstructor ["XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX","XOOOXOOOX"])), (), Win X, 1, "Win-X-1")
+  scoreTest ((\_ -> superResult (superBoardConstructor ["XOOOXOOOX","OOOOXOOOO","OOOOXOOOO","OOOOXOOOO","XOOOXOOOX","OOOOXOOOO","OOOOXOOOO","OOOOXOOOO","XOOOXOOOX"])), (), Win X, 1, "Win-X"),
+  scoreTest ((\_ -> superResult (superBoardConstructor ["OOOOXOOOO","XOOXOOOOX","XOOXOOOOX","OOOOXOOOO","XOOXOOOOX","XOOXOOOOX","OOOOXOOOO","XOOXOOOOX","XOOXOOOOX"])), (), Win O, 1, "Win-O"),
+  scoreTest ((\_ -> superResult (superBoardConstructor ["XXXOOOXXX","OOEXXEOOE","OEEXEEOEE","XXXOOOXXX","OOEXXEOOE","OEEXEEOEE","OOOXXXOOO","XXEOOEXXE","XEEOEEXEE"])), (), Draw, 1, "Draw-1"),
+  scoreTest ((\_ -> superResult (superBoardConstructor ["XOXOXOXOX","XOXOXOXOX","OXOXOXOXO","OXOXOXOXO","OXOXOXOXO","XOXOXOXOX","XOXOXOXOX","XOXOXOXOX","OXOXOXOXO"])), (), Draw, 1, "Draw-2")
   ]
   where
     scoreTest :: (Show b, Eq b) => (a -> b, a, b, Int, String) -> TestTree
