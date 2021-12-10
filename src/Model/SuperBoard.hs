@@ -112,11 +112,3 @@ emptySuperPositions sb  = [ (xx, zz)| (xx, yy) <- (getAllBoard sb), zz <- emptyP
 
 getAllBoard:: SuperBoard -> [(Pos, Board)]
 getAllBoard sb = [(xx, yy) | (xx, yy) <- M.assocs sb]
-
---- >>> (superUp (Pos 2 1, Pos 1 1))
---- (Pos {pRow = 1, pCol = 1},Pos {pRow = 3, pCol = 1})
----
-
---- >>> fst (superDown (Pos 1 1, Pos 3 3))
---- Pos {pRow = 2, pCol = 1}
----

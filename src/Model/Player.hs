@@ -16,11 +16,6 @@ data Player = Player
   , plStrat :: SuperStrategy
   }
 
--- type Strategy = Pos     -- ^ current cursor
---              -> Board   -- ^ current board
---              -> XO      -- ^ naught or cross
---              -> IO Pos  -- ^ next move
-
 type SuperStrategy = (Pos, Pos)     -- ^ current cursor
              -> SuperBoard   -- ^ current board
              -> XO      -- ^ naught or cross
@@ -59,21 +54,21 @@ aiStrategy _ superBoard turn lastSuper = do
           (Just pos, _)  -> (superPos, pos)
       try [] = (Pos 0 0, Pos 0 0)
 
-testboard1 = M.fromList [(Pos 1 1, O), (Pos 1 3, X), (Pos 2 1, X), (Pos 3 1, X), (Pos 3 2, O), (Pos 3 3, O)]
-testboard2 = M.fromList [(Pos 1 2, X), (Pos 2 3, X), (Pos 3 1, O), (Pos 3 2, O), (Pos 3 3, X)]
-
+getMoves :: M.Map Pos a -> [Pos]
 getMoves board = [Pos a b | a<-[1..3], b<-[1..3], canPut a b]
-  where 
+  where
     canPut a b = isNothing (M.lookup (Pos a b) board)
 
+optimizer :: (Eq a1, Fractional p, Ord p) => a1 -> a1 -> [(a2, p)] -> (a2, p)
 optimizer me turn = L.foldl1' opt --base
-  where 
+  where
     factor = if me == turn then 1.0 else -1.0
     opt (bestmove, bestscore) (move, score) = 
       if (score - bestscore) * factor > 0 
         then (move, score)
         else (bestmove, bestscore)
 
+minimax :: (Fractional b, Ord b) => XO -> XO -> Board -> (Maybe Pos, b)
 minimax me turn board =
   case Model.Board.getBoardResult board of
     Draw       -> (Nothing, 0.0)
@@ -85,4 +80,3 @@ minimax me turn board =
         (bestmove, bestscore) = optimizer me turn movesAndScores
       in
         (Just bestmove, 0.8 * bestscore)
-

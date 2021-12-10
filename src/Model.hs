@@ -35,8 +35,6 @@ data PlayState = PS
   , psPos         :: Board.Pos       -- ^ current cursor
   , psResult      :: Board.Result () -- ^ result      
   , psSounds      :: TrackMap
-  -- , psLastXsuper  :: Board.Pos
-  -- , psLastOsuper  :: Board.Pos
   , psLastSuper  :: Board.Pos
   } 
 
@@ -52,8 +50,6 @@ init n = PS
   , psPos         = head Board.positions 
   , psResult      = Board.Cont ()
   , psSounds      = loadTracks
-  -- , psLastXsuper  = Board.Pos 0 0
-  -- , psLastOsuper  = Board.Pos 0 0
   , psLastSuper  = Board.Pos 0 0
   }
 
@@ -71,8 +67,12 @@ playTrack name ps = do
 
 
 isCurr :: PlayState -> Int -> Int -> Int -> Int -> Bool
-isCurr s supR supC subR subC = Board.pRow supPos == supR && Board.pCol supPos == supC && Board.pRow subPos == subR && Board.pCol subPos == subC
-  where 
+isCurr s supR supC subR subC =
+  Board.pRow supPos == supR
+    && Board.pCol supPos == supC
+    && Board.pRow subPos == subR
+    && Board.pCol subPos == subC
+  where
     subPos = snd (psSuperPos s)
     supPos = fst (psSuperPos s)
 

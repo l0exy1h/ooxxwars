@@ -9,8 +9,6 @@ import Model.Board
 import Model.SuperBoard
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Model.Player
-import Audio
--- import Model.Player 
 
 -------------------------------------------------------------------------------
 
@@ -35,11 +33,11 @@ control (Play s) ev = case ev of
   T.VtyEvent (V.EvKey (V.KChar 'a') _) -> Brick.continue $ Play (move superLeft  s)
   T.VtyEvent (V.EvKey (V.KChar 'd') _) -> Brick.continue $ Play (move superRight s)
 
-  _                               -> Brick.continue $ Play s -- Brick.halt s
-control s@(Outro _) _ = Brick.continue s
-control (Intro r) ev = case ev of
+  _ -> Brick.continue $ Play s -- Brick.halt s
+control s@(Outro _) _  = Brick.continue s
+control (  Intro r) ev = case ev of
   T.VtyEvent (V.EvKey V.KEnter _) -> Brick.continue $ Play (Model.init r)
-  _ -> Brick.continue $ Intro r
+  _                               -> Brick.continue $ Intro r
 -------------------------------------------------------------------------------
 move :: ((Pos, Pos) -> (Pos, Pos)) -> PlayState -> PlayState
 -------------------------------------------------------------------------------
@@ -54,22 +52,20 @@ play xo s
     (superRes, subRes) <- superPut (psSuperBoard s) xo <$> posPair
 
     case superRes of
-      Retry -> playTrack "placeFail" s--playSoundPlaceFail 
+      Retry -> playTrack "placeFail" s
       _     -> do
-        playTrack "place" s-- playSoundPlace
-        case subRes of 
-          Win X -> playTrack "subWin" s --playSoundSubWin
-          Win O -> playTrack "subLose" s --playSoundSubLose
+        playTrack "place" s
+        case subRes of
+          Win X -> playTrack "subWin" s
+          Win O -> playTrack "subLose" s
           _     -> pure ()
         case superRes of
-          Win X -> playTrack "superWin" s --playSoundSuperWin
-          Win O -> playTrack "superLose" s --playSoundSuperLose
+          Win X -> playTrack "superWin" s
+          Win O -> playTrack "superLose" s
           _     -> pure ()
-
     pp <- posPair
     return (superRes, fst pp)
-
-  | otherwise      = return (Retry, Pos 0 0)
+  | otherwise = return (Retry, Pos 0 0)
 
 getPosPair :: XO -> PlayState -> IO (Pos, Pos)
 getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLastSuper s)
@@ -78,9 +74,9 @@ getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLa
 nextSuperS :: PlayState -> (Result SuperBoard, Pos) -> EventM n (Next State)
 -------------------------------------------------------------------------------
 nextSuperS s (b, lastSuper) = case next s b of
-  Right s' -> continue $ Play (s' { psLastSuper = lastSuper })
-  Left res -> continue (Outro res)
+  Right s'  -> continue $ Play (s' { psLastSuper = lastSuper })
+  Left  res -> continue (Outro res)
 
-getSuperStrategy :: XO -> PlayState -> SuperStrategy 
+getSuperStrategy :: XO -> PlayState -> SuperStrategy
 getSuperStrategy X s = plStrat (psX s)
 getSuperStrategy O s = plStrat (psO s)
