@@ -6,7 +6,6 @@ import           Brick
 import           Brick.Widgets.Border
 import           Brick.Widgets.Border.Style
 import           Brick.Widgets.Center           ( center )
-import qualified Data.Text                     as T
 import           Text.Printf                    ( printf )
 
 import qualified Data.Map                      as M
@@ -18,9 +17,41 @@ import           Model.Board
 -------------------------------------------------------------------------------
 view :: State -> [Widget String]
 -------------------------------------------------------------------------------
-view Intro      = undefined
-view (Outro xo) = [txt $ T.pack "X"]
-view (Play  s ) = [view' s]
+view (Intro _) = [v]
+  where
+    t
+      = " _       __     __                          __\n\
+        \| |     / /__  / /________  ____ ___  ___  / /\n\
+        \| | /| / / _ \\/ / ___/ __ \\/ __ `__ \\/ _ \\/ /\n\
+        \| |/ |/ /  __/ / /__/ /_/ / / / / / /  __/_/\n\
+        \|__/|__/\\___/_/\\___/\\____/_/ /_/ /_/\\___(_)\n\
+        \\n\
+        \             Press Enter to play"
+    v = center $ str t
+view (Outro res) = [v]
+  where
+    t = case res of
+      Draw
+        -> "    ____                           \n\
+           \   / __ \\   _____  ____ _ _      __\n\
+           \  / / / /  / ___/ / __ `/| | /| / /\n\
+           \ / /_/ /  / /    / /_/ / | |/ |/ / \n\
+           \/_____/  /_/     \\__,_/  |__/|__/"
+      Win X
+        -> "   _  __        _       __    _                     __\n\
+           \  | |/ /       | |     / /   (_)   ____    _____   / /\n\
+           \  |   /        | | /| / /   / /   / __ \\  / ___/  / / \n\
+           \ /   |         | |/ |/ /   / /   / / / / (__  )  /_/  \n\
+           \/_/|_|         |__/|__/   /_/   /_/ /_/ /____/  (_)"
+      Win O
+        -> "   ____         _       __    _                     __\n\
+           \  / __ \\       | |     / /   (_)   ____    _____   / /\n\
+           \ / / / /       | | /| / /   / /   / __ \\  / ___/  / / \n\
+           \/ /_/ /        | |/ |/ /   / /   / / / / (__  )  /_/  \n\
+           \\\____/         |__/|__/   /_/   /_/ /_/ /____/  (_)"
+      _ -> show res
+    v = center $ str t
+view (Play s) = [view' s]
 
 view' :: PlayState -> Widget String
 view' s = withBorderStyle (borderStyleFromChar '█') $ borderWithLabel (str (header s)) $ vTile

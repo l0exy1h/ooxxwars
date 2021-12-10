@@ -15,6 +15,7 @@ import Audio
 -------------------------------------------------------------------------------
 
 control :: State -> BrickEvent n Tick -> EventM n (Next State)
+control s (T.VtyEvent (V.EvKey V.KEsc _)) = Brick.halt s
 control (Play s) ev = case ev of
   AppEvent Tick                   -> nextSuperS s =<< liftIO (play O s)
   T.VtyEvent (V.EvKey V.KEnter _) -> nextSuperS s =<< liftIO (play X s)
@@ -34,10 +35,11 @@ control (Play s) ev = case ev of
   T.VtyEvent (V.EvKey (V.KChar 'a') _) -> Brick.continue $ Play (move superLeft  s)
   T.VtyEvent (V.EvKey (V.KChar 'd') _) -> Brick.continue $ Play (move superRight s)
 
-  T.VtyEvent (V.EvKey V.KEsc _)   -> Brick.halt $ Play s
   _                               -> Brick.continue $ Play s -- Brick.halt s
-control (Outro xo) _ = Brick.continue (Outro xo)
-control _ _ = undefined
+control s@(Outro _) _ = Brick.continue s
+control (Intro r) ev = case ev of
+  T.VtyEvent (V.EvKey V.KEnter _) -> Brick.continue $ Play (Model.init r)
+  _ -> Brick.continue $ Intro r
 -------------------------------------------------------------------------------
 move :: ((Pos, Pos) -> (Pos, Pos)) -> PlayState -> PlayState
 -------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next State)
 -------------------------------------------------------------------------------
 nextSuperS s b = case next s b of
   Right s' -> continue $ Play s'
-  Left res -> halt (Play $ s { psResult = res }) 
+  Left res -> continue (Outro res)
 
 getSuperStrategy :: XO -> PlayState -> SuperStrategy 
 getSuperStrategy X s = plStrat (psX s)

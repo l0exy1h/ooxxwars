@@ -17,9 +17,9 @@ data Tick = Tick
 -------------------------------------------------------------------------------
 
 data State 
-  = Intro 
+  = Intro Int
   | Play PlayState 
-  | Outro Board.XO
+  | Outro (Board.Result ())
   
 data PlayState = PS
   { psX           :: Player.Player   -- ^ player X info
