@@ -37,6 +37,7 @@ data PlayState = PS
   , psSounds      :: TrackMap
   -- , psLastXsuper  :: Board.Pos
   -- , psLastOsuper  :: Board.Pos
+  , psLastSuper  :: Board.Pos
   } 
 
 init :: Int -> PlayState
@@ -53,6 +54,7 @@ init n = PS
   , psSounds      = loadTracks
   -- , psLastXsuper  = Board.Pos 0 0
   -- , psLastOsuper  = Board.Pos 0 0
+  , psLastSuper  = Board.Pos 0 0
   }
 
 -- play a sound synchronously, given name of the track
@@ -66,16 +68,7 @@ playTrack name ps = do
       Sound.ALUT.play [src]
     _ -> pure ()
 
--- isCurr :: PlayState -> Int -> Int -> Bool
--- isCurr s r c = Board.pRow p == r && Board.pCol p == c
---   where 
---     p = psPos s 
 
---- >>> (Model.init 2)
---- <interactive>:16987:2-15: error:
----     • No instance for (Show PlayState) arising from a use of ‘print’
----     • In a stmt of an interactive GHCi command: print it
----
 
 isCurr :: PlayState -> Int -> Int -> Int -> Int -> Bool
 isCurr s supR supC subR subC = Board.pRow supPos == supR && Board.pCol supPos == supC && Board.pRow subPos == subR && Board.pCol subPos == subC
@@ -83,19 +76,21 @@ isCurr s supR supC subR subC = Board.pRow supPos == supR && Board.pCol supPos ==
     subPos = snd (psSuperPos s)
     supPos = fst (psSuperPos s)
 
+
+
+-- given current state and result of a move
+-- calculate next state (or decide this game is done, hence the Either)
 next :: PlayState -> Board.Result SuperBoard.SuperBoard -> Either (Board.Result ()) PlayState
 next s Board.Retry     = Right s
 next s (Board.Cont b') = Right (s { psSuperBoard = b'
-                                  , psTurn  = Board.flipXO (psTurn s) })
+                                  , psTurn  = Board.flipXO (psTurn s) 
+                                  })
 next s res             = nextBoard s res 
 
 
--- next :: PlayState -> Board.Result Board.Board -> Either (Board.Result ()) PlayState
--- next s Board.Retry     = Right s
--- next s (Board.Cont b') = Right (s { psBoard = b'
---                                   , psTurn  = Board.flipXO (psTurn s) })
--- next s res             = nextBoard s res 
-
+-- this game is done
+-- re-initialize next game
+-- probably wont be called
 nextBoard :: PlayState -> Board.Result a -> Either (Board.Result ()) PlayState
 nextBoard s res = case res' of
                     Board.Win _ -> Left res' 
@@ -109,17 +104,4 @@ nextBoard s res = case res' of
              , psSuperBoard = SuperBoard.superBoardInit 3
              , psTurn  = Score.startPlayer sc' -- toggle start player
              } 
-
--- nextBoard :: PlayState -> Board.Result a -> Either (Board.Result ()) PlayState
--- nextBoard s res = case res' of
---                     Board.Win _ -> Left res' 
---                     Board.Draw  -> Left res'
---                     _           -> Right s' 
---   where 
---     sc'  = Score.add (psScore s) (Board.boardWinner res) 
---     res' = Score.winner sc'
---     s'   = s { psScore = sc'                   -- update the score
---              , psBoard = mempty                -- clear the board
---              , psTurn  = Score.startPlayer sc' -- toggle start player
---              } 
 

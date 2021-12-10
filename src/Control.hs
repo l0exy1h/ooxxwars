@@ -43,11 +43,12 @@ move :: ((Pos, Pos) -> (Pos, Pos)) -> PlayState -> PlayState
 move f s = s { psSuperPos = f (psSuperPos s) }
 
 -------------------------------------------------------------------------------
-play :: XO -> PlayState -> IO (Result SuperBoard)
+play :: XO -> PlayState -> IO (Result SuperBoard, Pos)
 -------------------------------------------------------------------------------
 play xo s
   | psTurn s == xo = do
-    (superRes, subRes) <- superPut (psSuperBoard s) xo <$> getPosPair xo s
+    let posPair = getPosPair xo s
+    (superRes, subRes) <- superPut (psSuperBoard s) xo <$> posPair
 
     case superRes of
       Retry -> playTrack "placeFail" s--playSoundPlaceFail 
@@ -62,37 +63,21 @@ play xo s
           Win O -> playTrack "superLose" s --playSoundSuperLose
           _     -> pure ()
 
-    return superRes
+    pp <- posPair
+    return (superRes, fst pp)
 
-  | otherwise      = return Retry
+  | otherwise      = return (Retry, Pos 0 0)
 
 getPosPair :: XO -> PlayState -> IO (Pos, Pos)
-getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo 
+getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLastSuper s)
 
 -------------------------------------------------------------------------------
-nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next PlayState)
+nextSuperS :: PlayState -> (Result SuperBoard, Pos) -> EventM n (Next PlayState)
 -------------------------------------------------------------------------------
-nextSuperS s b = case next s b of
-  Right s' -> continue s'
+nextSuperS s (b, lastSuper) = case next s b of
+  Right s' -> continue (s' {psLastSuper = lastSuper} )
   Left res -> halt (s { psResult = res }) 
 
 getSuperStrategy :: XO -> PlayState -> SuperStrategy 
 getSuperStrategy X s = plStrat (psX s)
 getSuperStrategy O s = plStrat (psO s)
-
-
--- getPos :: XO -> PlayState -> IO Pos
--- getPos xo s = getStrategy xo s (psPos s) (psBoard s) xo
-
--- getStrategy :: XO -> PlayState -> Strategy 
--- getStrategy X s = plStrat (psX s)
--- getStrategy O s = plStrat (psO s)
-
--- -------------------------------------------------------------------------------
--- nextS :: PlayState -> Result Board -> EventM n (Next PlayState)
--- -------------------------------------------------------------------------------
--- nextS s b = case next s b of
---   Right s' -> continue s'
---   Left res -> halt (s { psResult = res }) 
-
-

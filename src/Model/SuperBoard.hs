@@ -39,7 +39,7 @@ superPut sb xo (supPos, subPos) = case M.lookup supPos sb of
 
 
 winPositions :: Int -> [[Pos]]
-winPositions x = (rows x) ++ (cols x) ++ (diags x) 
+winPositions x = rows x ++ cols x ++ diags x 
 
 rows, cols, diags :: Int -> [[Pos]]
 rows x = [[Pos r c | c <- [1..x]] | r <- [1..x]]
