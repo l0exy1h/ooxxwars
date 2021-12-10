@@ -36,7 +36,7 @@ data PlayState = PS
 init :: Int -> PlayState
 init n = PS 
   { psX           = Player.human
-  , psO           = Player.rando
+  , psO           = Player.ai
   , psScore       = Score.init n
   , psBoard       = Board.init
   , psSuperBoard  = SuperBoard.superBoardInit 3
