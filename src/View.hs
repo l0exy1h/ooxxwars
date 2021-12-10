@@ -58,13 +58,7 @@ view' s = withBorderStyle (borderStyleFromChar '█') $ borderWithLabel (str (he
   [ mkRow s row | row <- [1 .. dim] ]
 
 header :: PlayState -> String
-header s = printf "Tic-Tac-Toe Turn = %s, sr = %d, sc = %d, row = %d, col = %d"
-                  (show (psTurn s))
-                  sr
-                  sc
-                  r
-                  c
-  where (Pos sr sc, Pos r c) = psSuperPos s
+header s = printf " OOXXwars %s's turn " (show (psTurn s))
 
 mkRow :: PlayState -> Int -> Widget n
 mkRow s row = hTile [ mkBoard s row i | i <- [1 .. dim] ]
