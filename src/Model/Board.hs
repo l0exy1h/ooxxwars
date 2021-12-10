@@ -73,9 +73,9 @@ data Result a
   deriving (Eq, Functor, Show)
 
 put :: Board -> XO -> Pos -> Result Board
-put board xo pos = case M.lookup pos board of 
-  Just _  -> Retry
-  Nothing -> result (M.insert pos xo board) 
+put board xo pos = case (result board, M.lookup pos board) of 
+  (Cont _, Nothing) -> result (M.insert pos xo board) 
+  _  -> Retry
 
 result :: Board -> Result Board
 result b 

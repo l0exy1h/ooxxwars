@@ -19,7 +19,7 @@ import qualified Data.Map as M
 type SuperBoard = M.Map Pos Board
 
 superBoardInit :: Int -> SuperBoard
-superBoardInit x = M.fromList[(p, Model.Board.init) | p <- (superPositions x)]
+superBoardInit x = M.fromList[(p, Model.Board.init) | p <- superPositions x]
 
 superPositions :: Int -> [Pos]
 superPositions d = [ Pos x y | x <- [1..d], y <- [1..d] ]
@@ -30,12 +30,12 @@ isqrt x = floor . sqrt $ (fromIntegral x :: Float)
 getSuperBoardDim :: SuperBoard -> Int
 getSuperBoardDim sb = isqrt (M.size sb)
 
-superPut :: SuperBoard -> XO -> (Pos, Pos) -> Result SuperBoard
+superPut :: SuperBoard -> XO -> (Pos, Pos) -> (Result SuperBoard, Result Board)
 superPut sb xo (supPos, subPos) = case M.lookup supPos sb of
-    Nothing   -> Retry
-    Just sub  -> case (Model.Board.put sub xo subPos) of 
-        Retry   -> Retry
-        _       -> result (M.insert supPos (M.insert subPos xo sub) sb)
+    Nothing   -> (Retry, Retry)
+    Just sub  -> case Model.Board.put sub xo subPos of 
+        Retry   -> (Retry, Retry)
+        subres  -> (result (M.insert supPos (M.insert subPos xo sub) sb), subres)
 
 
 winPositions :: Int -> [[Pos]]
@@ -56,7 +56,7 @@ isDraw :: SuperBoard -> Bool
 isDraw sb = and[isFull xx | xx <- M.elems sb]
 
 wins :: SuperBoard -> XO -> Bool
-wins sb xo = or [ winsPoss sb xo ps | ps <- (winPositions (getSuperBoardDim sb))]
+wins sb xo = or [ winsPoss sb xo ps | ps <- winPositions (getSuperBoardDim sb)]
 
 
 winsPoss :: SuperBoard -> XO -> [Pos] -> Bool
@@ -65,7 +65,7 @@ winsPoss sb xo ps = and [ checkWinOfBoard sb xo p | p <- ps ]
 checkWinOfBoard :: SuperBoard -> XO -> Pos -> Bool
 checkWinOfBoard sb xo ps = case M.lookup ps sb of
     Nothing -> False
-    Just v  -> if getBoardResult v == Win xo then True else False
+    Just v  -> getBoardResult v == Win xo
 
 
 superUp :: (Pos, Pos) -> (Pos, Pos) 

@@ -20,6 +20,7 @@ executable brick-tac-toe
                        Control,
                        Model, 
                        Model.Board,
+                       Model.SuperBoard,
                        Model.Score,
                        Model.Player,
                        Audio

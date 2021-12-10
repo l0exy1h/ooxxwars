@@ -22,7 +22,7 @@ playSound2 soundName sleepTime =
 
 playSoundPlace = playSound2 "tap" 0.15
 playSoundPlaceFail = playSound2 "ju" 0.15
-playSoundSubWin = playSound2 "jujuju" 0.4
+playSoundSubWin = playSound2 "jujuju" 0.6
 playSoundSubLose = playSound2 "small-hit" 0.2
 playSoundSuperWin = playSound2 "complete" 1.0
 playSoundSuperLose = playSound2 "big-hit" 1.0
