@@ -9,6 +9,7 @@ import Model.Board
 import Model.SuperBoard
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Model.Player
+import Audio
 -- import Model.Player 
 
 -------------------------------------------------------------------------------
@@ -37,11 +38,15 @@ move f s = s { psSuperPos = f (psSuperPos s) }
 play :: XO -> PlayState -> IO (Result SuperBoard)
 -------------------------------------------------------------------------------
 play xo s
-  | psTurn s == xo = superPut (psSuperBoard s) xo <$> (getPosPair xo s) 
+  | psTurn s == xo = do
+    res <- superPut (psSuperBoard s) xo <$> getPosPair xo s
+    case res of
+      Retry -> playSoundPlaceFail >> return Retry
+      _     -> playSoundPlace     >> return res
   | otherwise      = return Retry
 
 getPosPair :: XO -> PlayState -> IO (Pos, Pos)
-getPosPair xo s = (getSuperStrategy xo s) (psSuperPos s) (psSuperBoard s) xo 
+getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo 
 
 -------------------------------------------------------------------------------
 nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next PlayState)

@@ -1,9 +1,7 @@
-name:                brick-tac-toe
+name:                ooxxwars
 version:             0.1.0.0
 license:             MIT
 license-file:        LICENSE
-author:              Ranjit Jhala
-maintainer:          rjhala@eng.ucsd.edu
 category:            Game
 build-type:          Simple
 extra-source-files:  README.md
@@ -15,14 +13,16 @@ executable brick-tac-toe
                        random >=1.1 && <1.2,
                        containers,
                        vty, 
-                       brick
+                       brick,
+                       ALUT
   hs-source-dirs:      src
   other-modules:       View, 
                        Control,
                        Model, 
                        Model.Board,
                        Model.Score,
-                       Model.Player
+                       Model.Player,
+                       Audio
 		       
   default-language:    Haskell2010
   ghc-options:       -W -threaded
