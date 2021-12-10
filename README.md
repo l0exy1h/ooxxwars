@@ -19,9 +19,75 @@ This game is an advanced version of Tic-Tac-Toe. Note that, in a traditional Tic
 
 Our game is a **nested** Tic-Tac-Toe game, which is composed of `3 x 3` traditional Tic-Tac-Toe games as its sub-games. Specifically, it is composed of a `3 x 3` big grid, and each grid in our game is a traditional Tic-Tac-Toe game. 
 
-In our game, two players take turns to mark space in any grid in any sub-game with `X` or `O`, just like in traditional games. When a sub-game in one particular big grid is finished, the whole big grid will be marked with the mark used by the sub-game winner. And the mark of a big grid is determined by the win/loss result of the corresponding sub-Tic-Tac-Toe game. The player who succeeds in winning three sub-games horizontally, vertically, or diagonally is the winner.
+In our game, you and an minimax AI take turns to mark space in any grid in any sub-game with `X` or `O`, just like in traditional games. When a sub-game in one particular big grid is finished, the whole big grid will be marked with the mark used by the sub-game winner. And the mark of a big grid is determined by the win/loss result of the corresponding sub-Tic-Tac-Toe game. The player who succeeds in winning three sub-games horizontally, vertically, or diagonally is the winner.
 
-## How to implement it
+Here is a list of controls available:
+
+- `wasd`, `hjkl`, and arrow keys for movement
+- `ESC` to end the game 
+
+## Installation
+
+This application is distributed using `stack`. Note that one of the audio-related dependencies `ALUT` is built upon the C library `libalut`. **This library needs to be installed to your system before you run `stack build`.**
+
+To install `libalut` on Arch Linux:
+
+```sh
+sudo pacman -S freealut
+```
+
+To install `libalut` on Ubuntu:
+
+```sh
+sudo apt-get install -y libalut-dev
+```
+
+To install `libalut` on macOS:
+
+```sh
+brew install freealut
+```
+
+After this you're able to 
+
+- clone this repository
+- `stack run`: to run the game
+- `stack run -- --help`: to show the game's help document
+- `stack run <difficulty>`: to run the game with a certain difficulty (an integer from 0..10). The higher the number, the smarter the opposing AI. **Difficulty 10 means UNBEATABLE**.
+- `stack test`: to run unit tests. 
+
+## Code Architecture
+
+We built upon the starter code. The following components are present in `src/`:
+
+- `Model.hs`: defines the data types used in the game
+- `SuperBoard.hs`: defines the superboard, which includes 9 boards, movements, and the winning conditions
+- `Board.hs`: defines the subboard, which includes movements and the winning conditions of subboard
+- `Player.hs`: implements two types of players, minimax AI and human
+- `View.hs`: displays intro, the game itself, and outro
+- `Control.hs`: defines movement  
+- `Audio.hs`: play sounds upon movement, placement, win/loss. This is built upon the `Sound.ALUT` library. The sounds are from `mixkit.co`.
+
+Also we have unit tests in `tests/`:
+
+- `Tests.hs`: tests movement and winning conditions
+
+## Teamwork
+
+| Name         | Contribution                                     |
+| ------------ | ------------------------------------------------ |
+| Zhiyuan Qi   | Tests, SuperBoard, Control, data model           |
+| Ruochen Wang | Intro/outro screen, Display of the board, Colors |
+| York Liu     | Display of the board, Minimax AI, Audio          |
+| Haofeng Xie  | Tests, SuperBoard, Control, data model           |
+
+Timeline of this project:
+
+- Nov 11 - Nov 17: Project Topic submission and confirmation.
+- Nov 21 - Nov 28: First version (prototype done). Reached Milestone 2.
+- Nov 30 - Dec 09: Final version and testing done. Reached Milestone 3.
+
+## [Outdated, Milestone 1] Thoughts on Implementation
 
 ### Model
 
@@ -42,14 +108,14 @@ Another section of the code handles user input (keyboard), modification to the d
 
 If time permits, we would also like to explore the option of mouse input.
 
-## Extra
+### Extra
 
 If everything above proceeds smoothly ahead of time, there are several other things we wish to try
 
 - AI opponent (minimax, limit depth)
 - Sound
 
-## Plan of execution
+## [Outdated, Milestone 1] Plan of execution
 
 Two of us are going to handle the view component, and the other two will write the controller component. Below is a time line.
 
@@ -59,7 +125,7 @@ Two of us are going to handle the view component, and the other two will write t
 - Write optional components by Sunday 12/5
 - Deliver on Friday 12/10
 
-## Update
+## [Outdated, Milestone 2] Update
 
 ### What is the architecture of your application (the key components)?
 
