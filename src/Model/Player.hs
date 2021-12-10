@@ -16,38 +16,41 @@ data Player = Player
   , plStrat :: SuperStrategy
   }
 
-type Strategy = Pos     -- ^ current cursor
-             -> Board   -- ^ current board
-             -> XO      -- ^ naught or cross
-             -> IO Pos  -- ^ next move
+-- type Strategy = Pos     -- ^ current cursor
+--              -> Board   -- ^ current board
+--              -> XO      -- ^ naught or cross
+--              -> IO Pos  -- ^ next move
 
 type SuperStrategy = (Pos, Pos)     -- ^ current cursor
              -> SuperBoard   -- ^ current board
              -> XO      -- ^ naught or cross
+             -> Pos     -- last super position
              -> IO (Pos, Pos)  -- ^ next move
 
 human :: Player 
-human = Player "human" (\p _ _ -> return p)
+human = Player "human" (\p _ _ _ -> return p)
 
-rando :: Player 
-rando = Player "machine" randomStrategy
+-- rando :: Player 
+-- rando = Player "machine" randomStrategy
+--
+-- randomStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
+-- randomStrategy _ b _ = selectRandom (emptySuperPositions b) 
+--
+-- selectRandom :: [a] -> IO a
+-- selectRandom xs = do
+--   i <- randomRIO (0, length xs - 1)
+--   return (xs !! i)
 
-randomStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
-randomStrategy _ b _ = selectRandom (emptySuperPositions b) 
-
-selectRandom :: [a] -> IO a
-selectRandom xs = do
-  i <- randomRIO (0, length xs - 1)
-  return (xs !! i)
-
--- finds the first valid subboard and do minimax
+-- run minimax where the last player places an entry
+-- otherwise, finds the first valid subboard and do minimax
 ai :: Player 
 ai = Player "machine" aiStrategy
 
-aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> IO (Pos, Pos)
-aiStrategy _ superBoard turn = 
-  return (try [Pos a b | a<-[1..3], b<-[1..3]])
+aiStrategy :: (Pos, Pos) -> SuperBoard -> XO -> Pos -> IO (Pos, Pos)
+aiStrategy _ superBoard turn lastSuper = 
+  return (try supers)
     where
+      supers = lastSuper : [Pos a b | a<-[1..3], b<-[1..3]] 
       try (superPos:ps) = 
         case minimax turn turn (fromJust (M.lookup superPos superBoard)) of
           (Nothing, _) -> try ps

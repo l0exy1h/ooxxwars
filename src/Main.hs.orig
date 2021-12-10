@@ -26,18 +26,23 @@ main = do
     threadDelay 100000 -- decides how fast your game moves
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
+<<<<<<< HEAD
+  res <- customMain initialVty buildVty (Just chan) app (Intro rounds)
+  case res of
+    Play res -> print (psResult res, psScore res) 
+    _ -> return ()
+=======
   -- run sound context
   withProgNameAndArgs runALUTUsingCurrentContext $ \_ _ ->
     do
       (Just device) <- openDevice Nothing
       (Just context) <- createContext device []
       currentContext $= Just context
-      res <- customMain initialVty buildVty (Just chan) app (Intro rounds)
-      case res of
-        Play res -> print (psResult res, psScore res) 
-        _ -> return ()
+      res <- customMain initialVty buildVty (Just chan) app (Model.init rounds)
+      print (psResult res, psScore res) 
       closeDevice device
       return ()
+>>>>>>> origin/asyncsound
 
 app :: App State Tick String
 app = App

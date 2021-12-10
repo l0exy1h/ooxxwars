@@ -75,11 +75,19 @@ getPosPair :: XO -> PlayState -> IO (Pos, Pos)
 getPosPair xo s = getSuperStrategy xo s (psSuperPos s) (psSuperBoard s) xo (psLastSuper s)
 
 -------------------------------------------------------------------------------
-nextSuperS :: PlayState -> (Result SuperBoard, Pos) -> EventM n (Next State)
+<<<<<<< HEAD
+nextSuperS :: PlayState -> Result SuperBoard -> EventM n (Next State)
+-------------------------------------------------------------------------------
+nextSuperS s b = case next s b of
+  Right s' -> continue $ Play s'
+  Left res -> continue (Outro res)
+=======
+nextSuperS :: PlayState -> (Result SuperBoard, Pos) -> EventM n (Next PlayState)
 -------------------------------------------------------------------------------
 nextSuperS s (b, lastSuper) = case next s b of
-  Right s' -> continue $ Play (s' { psLastSuper = lastSuper })
-  Left res -> continue (Outro res)
+  Right s' -> continue (s' {psLastSuper = lastSuper} )
+  Left res -> halt (s { psResult = res }) 
+>>>>>>> origin/asyncsound
 
 getSuperStrategy :: XO -> PlayState -> SuperStrategy 
 getSuperStrategy X s = plStrat (psX s)
